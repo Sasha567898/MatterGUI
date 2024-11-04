@@ -1,0 +1,1 @@
+/usr/bin/c++  -D_FILE_OFFSET_BITS=64 -DWXUSINGDLL -D__WXGTK__  -pthread CMakeFiles/hello.dir/MainFrame.cpp.o CMakeFiles/hello.dir/App.cpp.o CMakeFiles/hello.dir/Server.cpp.o -o hello  -lwx_gtk3u_xrc-3.3 -lwx_gtk3u_html-3.3 -lwx_gtk3u_qa-3.3 -lwx_gtk3u_adv-3.3 -lwx_gtk3u_core-3.3 -lwx_baseu_xml-3.3 -lwx_baseu_net-3.3 -lwx_baseu-3.3 -lwiringPi 

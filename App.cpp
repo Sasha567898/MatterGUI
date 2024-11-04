@@ -8,7 +8,7 @@ bool App::OnInit()
 {
     MainFrame* mainFrame = new MainFrame("Matter-Device-Accelerator");
      
-    mainFrame->SetClientSize(320, 200);
+    mainFrame->SetClientSize(640, 440);
     mainFrame->Centre();
     mainFrame->Show();
     
