@@ -13,7 +13,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Include directories
 include_directories(
     /usr/local/lib/wx/include/gtk3-unicode-3.3
-    /usr/local/include/wx-3.3
+    /usr/local/include/wx-3.3	
+	 /usr/local/include 
 )
 
 # Source files
@@ -42,5 +43,6 @@ target_link_libraries(hello
     wx_baseu_xml-3.3
     wx_baseu_net-3.3
     wx_baseu-3.3
+	 wiringPi
 )
 file(COPY resources/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

@@ -4,21 +4,26 @@
 #include "Server.h"
 #include <string>
 #include <wx/listctrl.h>
+ #include <wiringPi.h>
+ #define KEY1_PIN 23
+ #define KEY2_PIN 24
 
-enum IDs
-{
-    BUTTON_ID = 2
-};
- 
 MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 {
+	wiringPiSetupGpio();
+        pinMode(KEY1_PIN, INPUT);
+        pinMode(KEY2_PIN, INPUT);
+  	 pullUpDnControl(KEY1_PIN, PUD_UP);
+        pullUpDnControl(KEY2_PIN, PUD_UP);
+
+
     panel->SetBackgroundColour(wxColour(241, 250, 238));
 
-    listCtrl = new wxListCtrl(panel, wxID_ANY,  wxPoint(155, 0), wxSize(165, 200), wxLC_REPORT);
+    listCtrl = new wxListCtrl(panel, wxID_ANY,  wxPoint(155, 0), wxSize(165, 240), wxLC_REPORT);
     wxImageList* imageList = new wxImageList(32, 32, true);
     imageList->Add(wxBitmap("Temp.png", wxBITMAP_TYPE_PNG));
     imageList->Add(wxBitmap("Hum.png", wxBITMAP_TYPE_PNG));
-    imageList->Add(wxBitmap("Sun.png", wxBITMAP_TYPE_PNG));
+     imageList->Add(wxBitmap("Sun.png", wxBITMAP_TYPE_PNG));
     imageList->Add(wxBitmap("Motion.png", wxBITMAP_TYPE_PNG));
    
     wxFont font = listCtrl->GetFont();
@@ -48,14 +53,14 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
     item4.SetImage(3);               
     listCtrl->InsertItem(item4);
     
-    checkBox = new wxCheckBox(panel, wxID_ANY, "Motion-activated", wxPoint(7, 175));
+    checkBox = new wxCheckBox(panel, wxID_ANY, "Motion-activated", wxPoint(7, 210));
     checkBox->Bind(wxEVT_CHECKBOX, &MainFrame::OnCheckboxToggle, this);
 
     wxPNGHandler *handler = new wxPNGHandler;
     wxImage::AddHandler(handler);
 
-    bulbOff = new wxBitmapButton( panel, wxID_ANY, wxBitmap("Off.png", wxBITMAP_TYPE_PNG), wxPoint(27,10), wxDefaultSize, wxNO_BORDER);
-    bulbOn = new wxBitmapButton( panel, wxID_ANY, wxBitmap("On.png", wxBITMAP_TYPE_PNG), wxPoint(27,10), wxDefaultSize, wxNO_BORDER);
+    bulbOff = new wxBitmapButton( panel, wxID_ANY, wxBitmap("Off.png", wxBITMAP_TYPE_PNG), wxPoint(27,23), wxDefaultSize, wxNO_BORDER);
+    bulbOn = new wxBitmapButton( panel, wxID_ANY, wxBitmap("On.png", wxBITMAP_TYPE_PNG), wxPoint(27,23), wxDefaultSize, wxNO_BORDER);
     bulbOn->Hide();
     bulbOff->SetBackgroundColour(wxColour(241, 250, 238));
     bulbOn->SetBackgroundColour(wxColour(241, 250, 238));
@@ -64,7 +69,7 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 
    StartServer();
    #ifdef __aarch64__
-  ShowFullScreen(true, wxFULLSCREEN_NOBORDER);
+ ShowFullScreen(true, wxFULLSCREEN_NOBORDER);
   #endif
 }   
 
@@ -72,9 +77,22 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 void MainFrame::OnButtonClicked(wxCommandEvent& evt)
 {
      buttonClicked = true;
-}
-void MainFrame::OnTimer(wxTimerEvent& event)
-{
+}	
+void MainFrame::OnTimer(wxTimerEvent& event){
+       
+      
+      if (digitalRead(KEY1_PIN) == LOW) 
+      {
+         buttonClicked = true;
+      }
+      if (digitalRead(KEY2_PIN) == LOW) 
+      {
+           bool newValue = !checkBox->GetValue();
+  checkBox->SetValue(newValue);
+  wxCommandEvent event(wxEVT_CHECKBOX, checkBox->GetId());
+  event.SetInt(newValue); 
+  wxPostEvent(checkBox, event); 
+      }
     RunServer(); 
 }
 
@@ -87,7 +105,7 @@ void MainFrame::StartServer()
     bulbInfo = new BulbInfo;
     timer = new wxTimer(this);
     Bind(wxEVT_TIMER, &MainFrame::OnTimer, this); 
-    timer->Start(1000);  
+    timer->Start(500);  
 }
 void MainFrame::RunServer()
 {
